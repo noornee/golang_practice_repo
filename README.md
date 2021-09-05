@@ -1,1 +1,1 @@
-# golang_practice_repo
+```go run filename.go ```
