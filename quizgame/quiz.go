@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"flag"
 	"fmt"
 	"os"
 )
@@ -28,7 +29,10 @@ func main(){
 		fmt.Println(err)
 	}
 
-	for _, val := range csvLine {
+	quest := flag.Int("num", 5, "specifies the number of questions you wish to answer")
+	flag.Parse()
+
+	for _, val := range csvLine[0:*quest] {
 		quiz := Quiz{
 			question: val[0],
 			answer: val[1],
