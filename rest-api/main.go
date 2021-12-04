@@ -28,7 +28,7 @@ func main() {
 }
 
 type Movie struct {
-	ID    string    `json:"id"`
+	ID    string `json:"id"`
 	Title string `json:"title"`
 	Desc  string `json:"desc"`
 }
@@ -43,7 +43,7 @@ func getAllMovies(rw http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(rw).Encode(Movies)
 }
 
-func getMovieById(rw http.ResponseWriter, r *http.Request){
+func getMovieById(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	for _, movie := range Movies {
@@ -61,7 +61,6 @@ func handleRequests() {
 	router.HandleFunc("/", homePage).Methods("GET")
 	router.HandleFunc("/movies", getAllMovies).Methods("GET")
 	router.HandleFunc("/movies/{id}", getMovieById).Methods("GET")
-
 
 	http.ListenAndServe(":8000", router)
 }
