@@ -4,20 +4,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
 
 	Movies = []*Movie{
 		{
-			ID: 1,
+			ID:    "1",
 			Title: "First Movie",
-			Desc: "This is the first movie",
+			Desc:  "This is the first movie",
 		},
 		{
-			ID: 2,
+			ID:    "2",
 			Title: "Second Movie",
-			Desc: "This is the second movie",
+			Desc:  "This is the second movie",
 		},
 	}
 
@@ -26,7 +28,7 @@ func main() {
 }
 
 type Movie struct {
-	ID    int    `json:"id"`
+	ID    string    `json:"id"`
 	Title string `json:"title"`
 	Desc  string `json:"desc"`
 }
@@ -37,14 +39,29 @@ func homePage(rw http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(rw, "Hello World!\nThis is the HomePage")
 }
 
-func getAllMovies(rw http.ResponseWriter, r *http.Request){
+func getAllMovies(rw http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(rw).Encode(Movies)
 }
 
+func getMovieById(rw http.ResponseWriter, r *http.Request){
+	vars := mux.Vars(r)
 
+	for _, movie := range Movies {
+		if vars["id"] == movie.ID {
+			json.NewEncoder(rw).Encode(movie)
+		}
+
+	}
+}
 
 func handleRequests() {
-	http.HandleFunc("/", homePage)
-	http.HandleFunc("/movies", getAllMovies)
-	http.ListenAndServe(":8000", nil)
+
+	router := mux.NewRouter()
+
+	router.HandleFunc("/", homePage).Methods("GET")
+	router.HandleFunc("/movies", getAllMovies).Methods("GET")
+	router.HandleFunc("/movies/{id}", getMovieById).Methods("GET")
+
+
+	http.ListenAndServe(":8000", router)
 }
