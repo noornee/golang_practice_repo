@@ -7,69 +7,134 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-
 	"github.com/jinzhu/gorm"
-	"github.com/noornee/golang_practice_repo/go-orm/models"
 )
 
-func AllUsers(rw http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(rw, "Get Users endpoint")
-	db, err := gorm.Open("sqlite3", "test.db")
+type User struct {
+	gorm.Model
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
 
+func InitialMigration() {
+	db, err := gorm.Open("sqlite3", "test.db")
+	if err != nil {
+		fmt.Printf("failed to connect to database, %v", err)
+	}
+	defer db.Close()
+	db.AutoMigrate(&User{})
+}
+
+func GetAllUsers(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Set("Content-Type", "application/json")
+
+	db, err := gorm.Open("sqlite3", "test.db")
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	defer db.Close()
 
-	var users []models.User
+	var users []User
 
 	db.Find(&users)
-	fmt.Println(users)
+	json.NewEncoder(rw).Encode(users)
+}
+
+
+func GetUserByID(rw http.ResponseWriter, r *http.Request) {
+
+	rw.Header().Set("Content-Type", "application/json")
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	db, err := gorm.Open("sqlite3", "test.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	var users []User
+
+	db.Find(&users, id)
 	json.NewEncoder(rw).Encode(users)
 
 }
 
 func CreateUser(rw http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(rw, "Create User endpoint")
 
 	db, err := gorm.Open("sqlite3", "test.db")
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.Close()
 
 	reqBody, err := ioutil.ReadAll(r.Body)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var user models.User
-
+	var user User
 	json.Unmarshal(reqBody, &user)
 
-	defer db.Close()
-
-	// vars := mux.Vars(r)
-	// name := vars["name"]
-	// email := vars["email"]
-
-	db.Create(&models.User{
+	db.Create(&User{
 		Name:  user.Name,
 		Email: user.Email,
 	})
 
 	fmt.Fprintf(rw, "User created successfully")
-
 }
 
 func UpdateUser(rw http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(rw, "Update User endpoint")
+
+	db, err := gorm.Open("sqlite3", "test.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+
+	var user User
+	json.Unmarshal(reqBody, &user)
+
+	// db.Find(&user, id).Updates(map[string]interface{}{
+	// 	"Name": user.Name,
+	// 	"Email": user.Email,
+	// })
+
+
+	db.Model(&user).Where("ID", id).Updates(map[string]interface{}{
+		"Name": user.Name,
+		"Email": user.Email,
+	})
 
 }
 
 func DeleteUser(rw http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(rw, "Delete User endpoint")
+
+	db, err := gorm.Open("sqlite3", "test.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	var user User
+	db.Delete(&user, id)
+
+	fmt.Fprintf(rw, "Deleted")
+
 
 }
