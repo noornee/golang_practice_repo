@@ -7,6 +7,7 @@ import (
 	"github.com/noornee/golang_practice_repo/mimic/ls/custom"
 )
 
+// TODO: Implement recursion for nested folders
 func main() {
 	arg := os.Args[1:]
 	files, err := ioutil.ReadDir(".")
