@@ -18,14 +18,13 @@ func CustomValue(value string) {
 	// 	handlers.CustomValue(value.Name())
 	// }
 	if strings.Contains(value, " ") {
-		fmt.Printf("'%v' ", value)
+		curitem := fmt.Sprintf("|--"+"%v ", value)
+		fmt.Println(curitem)
 	} else {
-		fmt.Printf("%v ", value)
+		curitem := fmt.Sprintf("|--"+"%v ", value)
+		fmt.Println(curitem)
 	}
 }
-
-
-
 
 /*
 func main() {
@@ -57,4 +56,3 @@ func main() {
 	// fmt.Println(Blue, "hello")
 }
 */
-
