@@ -36,12 +36,11 @@ var doCmd = &cobra.Command{
 			}
 			task := tasks[id-1]
 			err := db.DeleteTask(task.Key)
-			fmt.Println(task.Key, err.Error())
-			//if err != nil {
-			//fmt.Println("error deleting task: ", err)
-			//} else {
-			//fmt.Printf("successfully deleted task with id of \"%d\"\n", task.Key)
-			//}
+			if err != nil {
+				fmt.Println("error deleting task: ", err)
+			} else {
+				fmt.Printf("successfully deleted task  \"%s\"\n", task.Value)
+			}
 
 		}
 	},
