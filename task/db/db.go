@@ -8,6 +8,11 @@ import (
 	bolt "go.etcd.io/bbolt"
 )
 
+type Task struct {
+	Key   int
+	Value string
+}
+
 var taskBucket = []byte("Tasks")
 
 var db *bolt.DB
@@ -38,6 +43,37 @@ func CreateTask(task string) (int, error) {
 	}
 
 	return id, nil
+}
+
+func ListTasks() ([]Task, error) {
+	var tasks []Task
+	err := db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket(taskBucket)
+		c := b.Cursor()
+		for k, v := c.First(); k != nil; k, v = c.Next() {
+			tasks = append(tasks, Task{
+				Key:   btoi(k),
+				Value: string(v),
+			})
+		}
+		return nil
+	})
+	if err != nil {
+		//fmt.Println("there was an error list tasks", err)
+		return nil, err
+	}
+	return tasks, nil
+}
+
+func DeleteTask(key int) error {
+	err := db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(taskBucket)
+		return b.Delete(itob(key))
+	})
+	if err != nil {
+		fmt.Println("del ", err)
+	}
+	return nil
 }
 
 func itob(k int) []byte {
